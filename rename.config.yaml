@@ -1,0 +1,10 @@
+servers:
+  - host: server1.example.com
+    user: username
+    folders:
+      - /path/to/folder1
+      - /path/to/folder2
+  - host: server2.example.com
+    user: username
+    folders:
+      - /path/to/folder3
