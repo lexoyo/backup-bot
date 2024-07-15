@@ -20,7 +20,7 @@ export function createSSHClient({host, user}) {
           // Run the actual command over ssh
           console.info(`>> Running command on ${host}`)
           console.log(`>> ${command.split('\n').join('\n>> ')}`)
-          exec(`timeout 30m ssh -o "StrictHostKeyChecking no" ${user}@${host} ${command}`, callback)
+          exec(`timeout 30m ssh -o "StrictHostKeyChecking no" ${user}@${host} ${command}`, { maxBuffer: 1024 * 50000 }, callback)
         },
       })
     })
@@ -34,7 +34,7 @@ export function createBackup(client, folders, config, remotePath) {
 
     const command = `bash -c '${getBashCommand(config, tmpPath, remotePath, folders)}'`
     client.exec(command, (err, stdout, stderr) => {
-      if (err) return reject(err)
+      if (err) return reject(stderr)
       console.info(`>> Backup of ${folders.length} folders uploaded to ${remotePath}`)
       resolve(stdout)
     })
