@@ -14,14 +14,17 @@ async function runBackup() {
       console.info(`> Connecting to ${server.host}`)
       const sshClient = await createSSHClient(server)
       try {
+        let start = Date.now()
         console.info(`> Backing up ${server.folders.length} folders on ${server.host}`)
         const logs = await createBackup(sshClient, server.folders, config, server.remotePath)
-        report += `Successfully backed up ${server.folders.length} folders on ${server.host}\nLogs:\n${logs}\n`
-        console.info(`> Successfully backed up ${server.folders.length} folders on ${server.host}`)
+        report += `Successfully backed up ${server.folders.length} folders on ${server.host}\nLogs:\n${logs}\nCompleted in ${(Date.now() - start) / 1000}s\n`
+        console.info(`> Successfully backed up ${server.folders.length} folders on ${server.host} in ${(Date.now() - start) / 1000}s`)
+        start = Date.now()
+        console.info(`> Downloading files from s3://${config.s3.bucket}/${server.remotePath}`)
         const contents = await getArchiveContent(config, server.remotePath)
-        console.info(`> Downloaded ${contents.length} files from s3://${config.s3.bucket}${server.remotePath}`)
-        report += `Successfully downloaded ${contents.length} files from s3://${config.s3.bucket}${server.remotePath}\n`
-        report += `Files:\n${contents.map((f) => f.label).join('\n')}\n`
+        console.info(`> Downloaded ${contents.length} files from s3://${config.s3.bucket}/${server.remotePath} in ${(Date.now() - start) / 1000}s`)
+        report += `Successfully downloaded ${contents.length} files from s3://${config.s3.bucket}/${server.remotePath}\nCompleted in ${(Date.now() - start) / 1000}s\n`
+        report += `Files tree in the archive:\n${contents.map((f) => f.label).join('\n')}\n`
       } catch (error) {
         report += `Error backing up ${server.host}: ${error.message}\n`
         console.error(`Error backing up ${server.host}: ${error.message}\n`, error)

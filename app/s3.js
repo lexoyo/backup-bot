@@ -32,8 +32,8 @@ export function getBashCommand(config, tmpPath, remotePath, folders) {
       tar -czf ${tmpPath} ${folders.join(' ')}
 
       # Upload file to S3
-      echo "Uploading to s3://${config.s3.bucket}${remotePath}"
-      if ! aws s3 cp ${tmpPath} s3://${config.s3.bucket}${remotePath}; then
+      echo "Uploading to s3://${config.s3.bucket}/${remotePath}"
+      if ! aws s3 cp ${tmpPath} s3://${config.s3.bucket}/${remotePath}; then
         echo "Upload failed" >&2
         rm -v ${tmpPath}
         exit 1
@@ -42,7 +42,7 @@ export function getBashCommand(config, tmpPath, remotePath, folders) {
     `
 
   // Escape any single quotes in the script
-  return bashScript.replace(/'/g, "'\\''")
+  return bashScript.replace(/'/g, "'\'")
 }
 
 async function downloadFile(config, remotePath, localPath) {
@@ -115,22 +115,22 @@ async function listFiles(dirPath, level = 0) {
 
 async function listFilesTarGz(localPath) {
   const extractPath = await fs.promises.mkdtemp(`/tmp/extracted-${Date.now()}`);
-  console.info(`Extracting ${localPath} to ${extractPath}`);
+  console.info(`>> Extracting ${localPath} to ${extractPath}`);
   await extractTarGz(localPath, extractPath);
   console.info(`>> Listing contents of ${extractPath}`);
   return listFiles(extractPath);
 }
 
 export async function getArchiveContent(config, remotePath) {
-  console.info('> Downloading file from S3...');
+  console.info('>> Downloading file from S3...');
   const localPath = `/tmp/backup-${Date.now()}.tar.gz`;
   await downloadFile(config, remotePath, localPath);
-  console.info('> Download complete.');
+  console.info('>> Download complete.');
 
-  console.info('> Extracting tar.gz file...');
+  console.info('>> Extracting tar.gz file...');
   const firstLevelFiles = await listFilesTarGz(localPath);
-  console.info('> Extraction complete.');
+  console.info('>> Extraction complete.');
 
-  console.info('> Listing top-level contents of the extracted directory...');
+  console.info('>> Listing top-level contents of the extracted directory...');
   return firstLevelFiles
 }

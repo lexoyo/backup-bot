@@ -20,7 +20,7 @@ export function createSSHClient({host, user}) {
           // Run the actual command over ssh
           console.info(`>> Running command on ${host}`)
           console.log(`>> ${command.split('\n').join('\n>> ')}`)
-          exec(`ssh -o "StrictHostKeyChecking no" ${user}@${host} ${command}`, callback)
+          exec(`timeout 30m ssh -o "StrictHostKeyChecking no" ${user}@${host} ${command}`, callback)
         },
       })
     })
