@@ -14,7 +14,8 @@ RUN npm install
 RUN apt-get update && apt-get install -y cron
 
 # Define the environment variable with the config.yaml content
-ENV CONFIG_YAML ""
+ARG CONFIG_YAML
+ENV CONFIG_YAML $CONFIG_YAML
 
 # Write the environment variable content to config.yaml
 RUN echo \"$CONFIG_YAML\" > /app/config.yaml
