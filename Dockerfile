@@ -20,6 +20,13 @@ ENV CONFIG_YAML $CONFIG_YAML
 # Write the environment variable content to config.yaml
 RUN echo "$CONFIG_YAML" > /app/config.yaml
 
+# SSH keys
+ARG SSH_PRIVATE_KEY
+ENV SSH_PRIVATE_KEY $SSH_PRIVATE_KEY
+RUN mkdir -p /root/.ssh && \
+    echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa && \
+    chmod 600 /root/.ssh/id_rsa
+
 # Copy the cron job file into the container
 COPY cronjob /etc/cron.d/backup-cron-job
 
