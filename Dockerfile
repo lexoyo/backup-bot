@@ -13,14 +13,20 @@ RUN npm install
 # Install cron
 RUN apt-get update && apt-get install -y cron
 
+# Define the environment variable with the config.yaml content
+ENV CONFIG_YAML ""
+
+# Write the environment variable content to config.yaml
+RUN echo \"$CONFIG_YAML\" > /app/config.yaml
+
 # Copy the cron job file into the container
-COPY cronjob /etc/cron.d/backup-bot-cron-job
+COPY cronjob /etc/cron.d/backup-cron-job
 
 # Give execution rights on the cron job
-RUN chmod 0644 /etc/cron.d/backup-bot-cron-job
+RUN chmod 0644 /etc/cron.d/backup-cron-job
 
 # Apply cron job
-RUN crontab /etc/cron.d/backup-bot-cron-job
+RUN cat /etc/cron.d/backup-cron-job >> /etc/crontab
 
 # Create the log file to be able to run tail
 RUN touch /var/log/cron.log
