@@ -12,12 +12,12 @@ export function createTransporter(emailConfig) {
   })
 }
 
-export function sendEmail(transporter, report, emailConfig) {
+export function sendEmail(transporter, report, emailConfig, errorOccured) {
   console.info(`>> Sending email to ${emailConfig.to}`)
   const mailOptions = {
     from: emailConfig.username,
     to: emailConfig.to,
-    subject: 'Backup Report',
+    subject: errorOccured ? '\u26D4 Error: backup FAILED' : '\u2705 Backup successful',
     text: report,
   }
 

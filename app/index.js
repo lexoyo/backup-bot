@@ -7,6 +7,7 @@ import { getArchiveContent } from './s3.js'
 async function runBackup() {
   const mailClient = createTransporter(config.email)
   let report = ''
+  let errorOccured = false
 
   console.info(`> Starting backup process of ${config.servers.length} servers`)
   for (const server of config.servers) {
@@ -28,15 +29,17 @@ async function runBackup() {
       } catch (error) {
         report += `Error backing up ${server.host}: ${error.message}\n`
         console.error(`Error backing up ${server.host}: ${error.message}\n`, error)
+        errorOccured = true
       }
     } catch (err) {
       console.error(`Error for ${server.host}: ${err.message}`, err)
       report += `Connection error for ${server.host}: ${err.message}\n`
+      errorOccured = true
     }
   }
 
   console.info('> Backup process finished. Report:', report)
-  await sendEmail(mailClient, report, config.email)
+  await sendEmail(mailClient, report, config.email, errorOccured)
 }
 
 runBackup().catch(console.error)
