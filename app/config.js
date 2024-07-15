@@ -1,6 +1,7 @@
 import fs from 'fs'
 import yaml from 'js-yaml'
 
+console.info('> Loading config from config.yaml')
 const config = yaml.load(fs.readFileSync('config.yaml', 'utf8'))
 
 export default {
@@ -20,5 +21,6 @@ export default {
     username: process.env.SMTP_USERNAME,
     password: process.env.SMTP_PASSWORD,
     from: process.env.MAIL_FROM,
+    to: process.env.MAIL_TO,
   }
 }

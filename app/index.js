@@ -1,30 +1,39 @@
 import 'dotenv/config'
 import config from './config.js'
-import { createSSHClient as createSSHClient, createBackup } from './ssh.js'
+import { createSSHClient, createBackup } from './ssh.js'
 import { createTransporter, sendEmail } from './email.js'
+import { getArchiveContent } from './s3.js'
 
 async function runBackup() {
   const mailClient = createTransporter(config.email)
   let report = ''
 
-  console.log(`> Starting backup process of ${config.servers.length} servers`)
+  console.info(`> Starting backup process of ${config.servers.length} servers`)
   for (const server of config.servers) {
     try {
+      console.info(`> Connecting to ${server.host}`)
       const sshClient = await createSSHClient(server)
-      console.log(`> Connecting to ${server.host}`)
       try {
-        await createBackup(sshClient, server.folders, config, server.remotePath)
-        report += `Successfully backed up ${folder} on ${server.host}\n`
+        console.info(`> Backing up ${server.folders.length} folders on ${server.host}`)
+        const logs = await createBackup(sshClient, server.folders, config, server.remotePath)
+        report += `Successfully backed up ${server.folders.length} folders on ${server.host}\nLogs:\n${logs}\n`
+        console.info(`> Successfully backed up ${server.folders.length} folders on ${server.host}`)
+        const contents = await getArchiveContent(config, server.remotePath)
+        console.info(`> Downloaded ${contents.length} files from s3://${config.s3.bucket}${server.remotePath}`)
+        report += `Successfully downloaded ${contents.length} files from s3://${config.s3.bucket}${server.remotePath}\n`
+        report += `Files:\n${contents.map((f) => f.label).join('\n')}\n`
       } catch (error) {
-        report += `Error backing up ${folder} on ${server.host}: ${error.message}\n`
+        report += `Error backing up ${server.host}: ${error.message}\n`
+        console.error(`Error backing up ${server.host}: ${error.message}\n`, error)
       }
     } catch (err) {
-      console.error(`Error connecting to ${server.host}: ${err.message}`)
+      console.error(`Error for ${server.host}: ${err.message}`, err)
       report += `Connection error for ${server.host}: ${err.message}\n`
     }
   }
 
-  //await sendEmail(transporter, report, config.email)
+  console.info('> Backup process finished. Report:', report)
+  await sendEmail(mailClient, report, config.email)
 }
 
 runBackup().catch(console.error)

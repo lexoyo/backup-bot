@@ -9,10 +9,11 @@
     "lint": "eslint app"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.614.0",
     "dotenv": "^16.4.5",
+    "fs": "^0.0.1-security",
     "js-yaml": "^4.1.0",
-    "nodemailer": "^6.9.14",
-    "ssh2": "^1.15.0"
+    "nodemailer": "^6.9.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.6.0",
