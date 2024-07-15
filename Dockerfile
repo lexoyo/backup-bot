@@ -18,7 +18,8 @@ ARG CONFIG_YAML
 ENV CONFIG_YAML $CONFIG_YAML
 
 # Write the environment variable content to config.yaml
-RUN echo \"$CONFIG_YAML\" > /app/config.yaml
+RUN echo -e "$CONFIG_YAML" | sed 's/\\t/\t/g' > /app/config.yaml
+
 
 # Copy the cron job file into the container
 COPY cronjob /etc/cron.d/backup-cron-job
