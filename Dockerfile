@@ -32,4 +32,4 @@ RUN cat /etc/cron.d/backup-cron-job >> /etc/crontab
 RUN touch /var/log/cron.log
 
 # Run the command on container startup
-CMD cron && tail -f /var/log/cron.log
+CMD cat /app/config.yaml && cron && tail -f /var/log/cron.log
