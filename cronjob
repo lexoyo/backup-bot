@@ -1,0 +1,2 @@
+# Run the Node.js app every day at midnight
+0 0 * * * root cd /app && npm start >> /var/log/cron.log 2>&1
