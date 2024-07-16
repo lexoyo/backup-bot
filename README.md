@@ -10,6 +10,7 @@ Backup Bot is an open-source software designed to automate daily backups of spec
 - [x] Send email reports with backup status and errors
 - [ ] npm package @internet2000/backup-bot
 - [ ] Docker image internet2000/backup-bot
+- [ ] In config add a list of files with a "delay", check that the file is in the archive and it is recent enough
 
 ## Prerequisites
 
