@@ -29,7 +29,7 @@ export function getBashCommand(config, tmpPath, remotePath, folders) {
 
       # Create tarball
       echo "Creating tarball of ${folders.length} folders"
-      tar -czf ${tmpPath} ${folders.join(' ')}
+      tar --exclude='node_modules' --exclude='.git' --exclude='.cache' -czf ${tmpPath} ${folders.join(' ')}
 
       # Upload file to S3
       echo "Uploading to s3://${config.s3.bucket}/${remotePath}"
