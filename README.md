@@ -8,6 +8,7 @@ Backup Bot is an open-source software designed to automate daily backups of spec
 - [x] Create ZIP backups of specified folders
 - [x] Upload backups to S3-compatible storage
 - [x] Send email reports with backup status and errors
+- [x] Execute a command before backing up a server
 - [ ] npm package @internet2000/backup-bot
 - [ ] Docker image internet2000/backup-bot
 - [ ] In config add a list of files with a "delay", check that the file is in the archive and it is recent enough
@@ -56,6 +57,7 @@ Create a `config.yaml` file in the root directory with the following structure:
 servers:
   - host: server1.example.com
     user: username
+    backupCommand: "echo \"This command will run before backup\""
     folders:
       - /path/to/folder1
       - /path/to/folder2
