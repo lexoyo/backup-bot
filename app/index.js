@@ -18,7 +18,7 @@ async function runBackup() {
         let start = Date.now()
         console.info(`> Backing up ${server.folders.length} folders on ${server.host}`)
         const logs = await createBackup(sshClient, server.folders, config, server.remotePath)
-        report += `Successfully backed up ${server.folders.length} folders on ${server.host}\nLogs:\n${logs}\nCompleted in ${(Date.now() - start) / 1000}s\n`
+        report += `Successfully backed up ${server.folders.length} folders on ${server.host}\nCompleted in ${(Date.now() - start) / 1000}s\n`
         console.info(`> Successfully backed up ${server.folders.length} folders on ${server.host} in ${(Date.now() - start) / 1000}s`)
         start = Date.now()
         console.info(`> Downloading files from s3://${config.s3.bucket}/${server.remotePath}`)
