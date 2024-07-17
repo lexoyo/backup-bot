@@ -28,8 +28,8 @@ touch /var/log/cron.log
 
 # Write the cron.env file with the environment variables
 echo "Writing the cron.env file..."
-echo "CONFIG_YAML=$CONFIG_YAML" >> /app/cron.env
-echo "SSH_PRIVATE_KEY=$SSH_PRIVATE_KEY" >> /app/cron.env
+echo "CONFIG_YAML=\"$CONFIG_YAML\"" >> /app/cron.env
+echo "SSH_PRIVATE_KEY=\"$SSH_PRIVATE_KEY\"" >> /app/cron.env
 
 # Run the app once at startup
 echo "Running the app at startup..."

@@ -1,2 +1,2 @@
 # Run the Node.js app every day at midnight
-0 0 * * * deploy cd /app && . cron.env && npm start >> /var/log/cron.log 2>&1
+0 0 * * * root cd /app && . cron.env && npm start >> /var/log/cron.log 2>&1
