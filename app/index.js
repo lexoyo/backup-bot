@@ -18,14 +18,17 @@ async function runBackup() {
         let start = Date.now()
         if (server.backupCommand) {
           console.info(`> Running custom backup command on ${server.host}: ${server.backupCommand}`)
-          sshClient.exec(server.backupCommand, (err, stdout, stderr) => {
-            console.info(`> Custom backup command output: ${stdout}`)
-            if (err) {
-              console.error(`Error running custom backup command on ${server.host}: ${stderr}`)
-              report += `Error running custom backup command on ${server.host}: ${stderr}\n`
-            } else {
-              console.info(`> Custom backup command ran on ${server.host}`)
-            }
+          await new Promise((resolve, reject) => {
+            sshClient.exec(server.backupCommand, (err, stdout, stderr) => {
+              if (err) {
+                console.error(`Error running custom backup command on ${server.host}: ${stderr}`)
+                report += `Error running custom backup command on ${server.host}: ${stderr}\n`
+                reject(err)
+              } else {
+                console.info(`> Custom backup command ran on ${server.host}`)
+                resolve()
+              }
+            })
           })
         }
         console.info(`> Backing up ${server.folders.length} folders on ${server.host}`)
