@@ -10,10 +10,6 @@ mkdir -p /root/.ssh
 echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 
-# Run the app once at startup
-echo "Running the app at startup..."
-npm start
-
 # If the env var CRONJOB is set, run the cron job
 if [ -n "$CRONJOB" ]; then
   echo "CRONJOB is set, running the cron job..."
@@ -29,6 +25,10 @@ fi
 echo "Writing the cron.env file..."
 echo "CONFIG_YAML=$CONFIG_YAML" >> /app/cron.env
 echo "SSH_PRIVATE_KEY=$SSH_PRIVATE_KEY" >> /app/cron.env
+
+# Run the app once at startup
+echo "Running the app at startup..."
+npm start
 
 # Call CMD from Dockerfile
 exec "$@"
