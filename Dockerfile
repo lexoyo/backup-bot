@@ -14,24 +14,23 @@ RUN npm install
 RUN apt-get update && apt-get install -y cron
 
 # Define the environment variable with the config.yaml content
+# Will be copied to /app/cron.env
 ARG CONFIG_YAML
 ENV CONFIG_YAML $CONFIG_YAML
 
-# Write the environment variable content to config.yaml
-RUN echo "$CONFIG_YAML" > /app/config.yaml
-
 # SSH keys
+# Will be copied to /app/cron.env
 ARG SSH_PRIVATE_KEY
 ENV SSH_PRIVATE_KEY $SSH_PRIVATE_KEY
-RUN mkdir -p /root/.ssh && \
-    echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa && \
-    chmod 600 /root/.ssh/id_rsa
 
 # Copy the cron job file into the container
 COPY cronjob /etc/cron.d/backup-cron-job
 
 # Give execution rights on the cron job
 RUN chmod 0644 /etc/cron.d/backup-cron-job
+
+# Startup script
+ENTRYPOINT [ "startup.sh" ]
 
 # Apply cron job
 RUN cat /etc/cron.d/backup-cron-job >> /etc/crontab
@@ -40,4 +39,4 @@ RUN cat /etc/cron.d/backup-cron-job >> /etc/crontab
 RUN touch /var/log/cron.log
 
 # Run the command on container startup
-CMD cat /app/config.yaml && npm start && cron && tail -f /var/log/cron.log
+CMD cron && tail -f /var/log/cron.log
