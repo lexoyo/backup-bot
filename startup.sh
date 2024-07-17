@@ -13,10 +13,6 @@ chmod 600 /root/.ssh/id_rsa
 # If the env var CRONJOB is set, run the cron job
 if [ -n "$CRONJOB" ]; then
   echo "CRONJOB is set, running the cron job..."
-  # echo "$CRONJOB" >> /etc/crontab
-  # chmod 0644 /etc/cron.d/cronjob
-  # crontab /etc/cron.d/cronjob
-  # cron -f
   (crontab -l ; echo "$CRONJOB") | crontab -
 else
   echo "CRONJOB is not set, use the file cronjob..."
@@ -44,9 +40,9 @@ echo "export SMTP_PASSWORD=$SMTP_PASSWORD" >> /app/cron.env
 echo "export MAIL_FROM=$MAIL_FROM" >> /app/cron.env
 echo "export MAIL_TO=$MAIL_TO" >> /app/cron.env
 
-# Run the app once at startup
-echo "Running the app at startup..."
-npm start
+# # Run the app once at startup
+# echo "Running the app at startup..."
+# npm start
 
 # Call CMD from Dockerfile
 exec "$@"
