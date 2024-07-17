@@ -23,20 +23,15 @@ ENV CONFIG_YAML $CONFIG_YAML
 ARG SSH_PRIVATE_KEY
 ENV SSH_PRIVATE_KEY $SSH_PRIVATE_KEY
 
+# CRON job
+ARG CRONJOB
+ENV CRONJOB $CRONJOB
+
 # Copy the cron job file into the container
 COPY cronjob /etc/cron.d/backup-cron-job
 
-# Give execution rights on the cron job
-RUN chmod 0644 /etc/cron.d/backup-cron-job
-
 # Startup script
-ENTRYPOINT [ "./startup.sh" ]
-
-# Apply cron job
-RUN cat /etc/cron.d/backup-cron-job >> /etc/crontab
-
-# Create the log file to be able to run tail
-RUN touch /var/log/cron.log
+ENTRYPOINT [ "/app/startup.sh" ]
 
 # Run the command on container startup
 CMD cron && tail -f /var/log/cron.log
