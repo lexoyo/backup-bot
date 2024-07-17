@@ -30,7 +30,7 @@ COPY cronjob /etc/cron.d/backup-cron-job
 RUN chmod 0644 /etc/cron.d/backup-cron-job
 
 # Startup script
-ENTRYPOINT [ "startup.sh" ]
+ENTRYPOINT [ "./startup.sh" ]
 
 # Apply cron job
 RUN cat /etc/cron.d/backup-cron-job >> /etc/crontab
