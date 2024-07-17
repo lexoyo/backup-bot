@@ -32,18 +32,16 @@ jobs:
           command: c
           cwd: "./"
           files: |
+            app/
+            startup.sh
+            cronjob
             captain-definition
+            package.json
             node_modules/
+            LICENSE
             package.json
             Dockerfile
-            .silex.js
-            client-config.js
-            .nvmrc
-            client-plugins
-            client-filters.js
-            client-blocks.js
-            server-plugins
-            onboarding.json
+            .dockerignore
           outPath: deploy.tar
 
       - name: Deploy to CapRover
