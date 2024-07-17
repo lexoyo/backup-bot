@@ -1,2 +1,2 @@
-# Run the Node.js app every day at midnight
-0 0 * * * root /app/run.sh
+0 0 * * * /app/run.sh
+
