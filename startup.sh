@@ -44,5 +44,7 @@ echo "export MAIL_TO=$MAIL_TO" >> /app/cron.env
 # echo "Running the app at startup..."
 # npm start
 
+echo "Startup script finished."
+
 # Call CMD from Dockerfile
 exec "$@"
