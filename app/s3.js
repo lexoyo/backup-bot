@@ -118,7 +118,24 @@ async function listFilesTarGz(localPath) {
   console.info(`>> Extracting ${localPath} to ${extractPath}`)
   await extractTarGz(localPath, extractPath)
   console.info(`>> Listing contents of ${extractPath}`)
-  return listFiles(extractPath)
+  const files = listFiles(extractPath)
+  console.info('>> Cleaning up extracted files...')
+  deleteFolderRecursive(extractPath)
+  return files
+}
+
+async function deleteFolderRecursive(path) {
+  const files = await fs.promises.readdir(path)
+  for (const file of files) {
+    const curPath = `${path}/${file}`
+    const stat = await fs.promises.lstat(curPath)
+    if (stat.isDirectory()) {
+      await deleteFolderRecursive(curPath)
+    } else {
+      await fs.promises.unlink(curPath)
+    }
+  }
+  await fs.promises.rmdir(path)
 }
 
 export async function getArchiveContent(config, remotePath) {
