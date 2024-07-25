@@ -13,6 +13,7 @@
     "dotenv": "^16.4.5",
     "fs": "^0.0.1-security",
     "js-yaml": "^4.1.0",
+    "micromatch": "^4.0.7",
     "nodemailer": "^6.9.14",
     "tar": "^7.4.0"
   },

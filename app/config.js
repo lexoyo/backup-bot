@@ -22,5 +22,6 @@ export default {
     password: process.env.SMTP_PASSWORD,
     from: process.env.MAIL_FROM,
     to: process.env.MAIL_TO,
+    dryRun: !!process.env.MAIL_DRY_RUN,
   }
 }

@@ -9,6 +9,7 @@ Backup Bot is an open-source software designed to automate daily backups of spec
 - [x] Upload backups to S3-compatible storage
 - [x] Send email reports with backup status and errors
 - [x] Execute a command before backing up a server
+- [x] Support folders with blob in their names, e.g. /path/to/folder/my_*_data
 - [ ] npm package @internet2000/backup-bot
 - [ ] Docker image internet2000/backup-bot
 - [ ] In config add a list of files with a "delay", check that the file is in the archive and it is recent enough
@@ -51,6 +52,8 @@ npm install -g @internet2000/backup-bot
 
 ## Configuration
 
+### Config file
+
 Create a `config.yaml` file in the root directory with the following structure:
 
 ```yaml
@@ -59,8 +62,9 @@ servers:
     user: username
     backupCommand: "echo \"This command will run before backup\""
     folders:
-      - /path/to/folder1
-      - /path/to/folder2
+      - /path/to/folder/ # Folders need a trailing slash
+      - /path/to/file.txt # Support files
+      - /path/to/all_*_folders/ # Support "*" in the file name or last folder only
   - host: server2.example.com
     user: username
     folders:
@@ -77,6 +81,34 @@ email:
   password: your-email-password
   to: recipient@example.com
 ```
+
+### Env vars
+
+Here are the available environment variables.
+
+S3-compatible storage:
+
+- `S3_ENDPOINT`: S3-compatible storage endpoint
+- `S3_BUCKET`: S3 bucket name
+- `S3_ACCESS_KEY_ID`: S3 access key
+- `S3_SECRET_ACCESS_KEY`: S3 secret key
+- `S3_REGION`: S3 region
+
+Email:
+
+- `SMTP_SERVER`: SMTP server
+- `SMTP_PORT`: SMTP port
+- `SMTP_USERNAME`: SMTP username
+- `SMTP_PASSWORD`: SMTP password
+- `MAIL_FROM`: Email sender
+- `MAIL_TO`: Email recipient
+- `MAIL_DRY_RUN`: Dry run mode (true if exists)
+
+Used by the Docker image:
+
+- `CONFIG_YAML`: Content of the `config.yaml` file, see the [Config file](#config-file) section
+- `SSH_PRIVATE_KEY`: SSH private key
+- `CRONJOB`: Cron job schedule, e.g `0 1 * * * /app/run.sh`
 
 ## Usage
 

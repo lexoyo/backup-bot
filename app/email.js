@@ -14,6 +14,10 @@ export function createTransporter(emailConfig) {
 
 export function sendEmail(transporter, report, emailConfig, errorOccured) {
   console.info(`>> Sending email to ${emailConfig.to}`)
+  if(emailConfig.dryRun) {
+    console.info('>> Dry run enabled, skipping email')
+    return Promise.resolve()
+  }
   const mailOptions = {
     from: emailConfig.username,
     to: emailConfig.to,
