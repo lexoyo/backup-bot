@@ -74,7 +74,7 @@ async function resolvePaths(client, folders) {
   const resolved = await Promise.all(folders.map(async (path) => {
     const hasTrailingSlash = path.endsWith('/')
     path = path.replace(/\/$/, '')
-    const fileName = path.split('/').pop() + (hasTrailingSlash ? '/' : '')
+    const fileName = path.split('/').pop()
     const baseName = [...path.split('/').slice(0, -1)].join('/')
     const files = await client.fs.readdir(baseName)
     return micromatch(files, fileName).map((file) => `${baseName}/${file}`)
