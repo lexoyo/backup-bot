@@ -23,5 +23,11 @@ export default {
     from: process.env.MAIL_FROM,
     to: process.env.MAIL_TO,
     dryRun: !!process.env.MAIL_DRY_RUN,
-  }
+    subjectSuccess: process.env.REPORT_SUBJECT_SUCCESS || '\u2705 Backup successful',
+    subjectError: process.env.REPORT_SUBJECT_ERROR || '\u26D4 Error: backup FAILED',
+  },
+  report: {
+    // Report settings
+    includeFileTree: process.env.REPORT_INCLUDE_FILE_TREE === 'true',
+  },
 }

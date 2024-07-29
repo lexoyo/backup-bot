@@ -104,6 +104,12 @@ Email:
 - `MAIL_TO`: Email recipient
 - `MAIL_DRY_RUN`: Dry run mode (true if exists)
 
+Report:
+
+- `REPORT_SUBJECT_SUCCESS`: Email subject for successful backups
+- `REPORT_SUBJECT_ERROR`: Email subject for failed backups
+- `REPORT_INCLUDE_FILE_TREE`: Include file tree in the email report, true if set to 'true', false by default
+
 Used by the Docker image:
 
 - `CONFIG_YAML`: Content of the `config.yaml` file, see the [Config file](#config-file) section

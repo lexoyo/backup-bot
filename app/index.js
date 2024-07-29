@@ -40,7 +40,9 @@ async function runBackup() {
         const contents = await getArchiveContent(config, server.remotePath)
         console.info(`> Downloaded ${contents.length} files from s3://${config.s3.bucket}/${server.remotePath} in ${(Date.now() - start) / 1000}s`)
         report += `Successfully downloaded ${contents.length} files from s3://${config.s3.bucket}/${server.remotePath}\nCompleted in ${(Date.now() - start) / 1000}s\n`
-        report += `Files tree in the archive:\n${contents.map((f) => f.label).join('\n')}\n`
+        if(config.includeFileTree) {
+          report += `Files tree in the archive:\n${contents.map((f) => f.label).join('\n')}\n`
+        }
       } catch (error) {
         report += `Error backing up ${server.host}: ${error.message}\n`
         console.error(`Error backing up ${server.host}: ${error.message}\n`, error)

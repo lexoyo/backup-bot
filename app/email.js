@@ -21,7 +21,7 @@ export function sendEmail(transporter, report, emailConfig, errorOccured) {
   const mailOptions = {
     from: emailConfig.username,
     to: emailConfig.to,
-    subject: errorOccured ? '\u26D4 Error: backup FAILED' : '\u2705 Backup successful',
+    subject: errorOccured ? emailConfig.subjectError : emailConfig.subjectSuccess,
     text: report,
   }
 
