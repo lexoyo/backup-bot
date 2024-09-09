@@ -8,6 +8,7 @@ export default {
   // Config from the YAML file
   ...config,
   // Config from environment variables
+  dryRun: !!process.env.DRY_RUN,
   s3: {
     endpoint: process.env.S3_ENDPOINT,
     bucket: process.env.S3_BUCKET,
@@ -22,7 +23,7 @@ export default {
     password: process.env.SMTP_PASSWORD,
     from: process.env.MAIL_FROM,
     to: process.env.MAIL_TO,
-    dryRun: !!process.env.MAIL_DRY_RUN,
+    dryRun: !!process.env.DRY_RUN,
     subjectSuccess: process.env.REPORT_SUBJECT_SUCCESS || '\u2705 Backup successful',
     subjectError: process.env.REPORT_SUBJECT_ERROR || '\u26D4 Error: backup FAILED',
   },

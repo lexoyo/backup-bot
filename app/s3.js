@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, GetObjectCommand, CopyObjectCommand, TaggingDirective } from '@aws-sdk/client-s3'
 import fs from 'fs'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
@@ -33,7 +33,11 @@ export function getBashCommand(config, tmpPath, remotePath, folders) {
 
       # Upload file to S3
       echo "Uploading to s3://${config.s3.bucket}/${remotePath}"
-      if ! aws s3 cp ${tmpPath} s3://${config.s3.bucket}/${remotePath}; then
+      if ! aws s3api put-object \
+        --bucket ${config.s3.bucket} \
+        --key ${remotePath} \
+        --body ${tmpPath} \
+        --tagging "backup-type=daily"; then
         echo "Upload failed" >&2
         rm -v ${tmpPath}
         exit 1
@@ -150,4 +154,33 @@ export async function getArchiveContent(config, remotePath) {
   fs.promises.unlink(localPath)
 
   return firstLevelFiles
+}
+
+export async function duplicateBackup(config, remotePath, type) {
+  console.info(`>> Duplicating backup ${remotePath} for ${type}`)
+  const s3Client = new S3Client({
+    region: config.s3.region,
+    credentials: {
+      accessKeyId: config.s3.accessKeyId,
+      secretAccessKey: config.s3.secretAccessKey,
+    },
+  })
+
+  // Build the new name for the file
+  // @example 'backup-bot/eco2/eco-starter.tar.gz' => `backup-bot/eco2/eco-starter-${type}.tar.gz`
+  const parts = remotePath.split('/')
+  const fileName = parts.pop()
+  const [name, ...ext] = fileName.split('.')
+  const Key = `${parts.join('/')}/${name}-${type}.${ext.join('.')}`
+
+  const params = {
+    Bucket: config.s3.bucket,
+    CopySource: `${config.s3.bucket}/${remotePath}`,
+    Key,
+    Tagging: `backup-type=${type}`,
+    TaggingDirective: 'REPLACE',
+  }
+
+  const command = new CopyObjectCommand(params)
+  await s3Client.send(command)
 }

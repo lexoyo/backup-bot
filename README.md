@@ -10,6 +10,7 @@ Backup Bot is an open-source software designed to automate daily backups of spec
 - [x] Send email reports with backup status and errors
 - [x] Execute a command before backing up a server
 - [x] Support folders with blob in their names, e.g. /path/to/folder/my_*_data
+- [x] Support GFS (Grandfather-Father-Son) backup rotation
 - [ ] npm package @internet2000/backup-bot
 - [ ] Docker image internet2000/backup-bot
 - [ ] In config add a list of files with a "delay", check that the file is in the archive and it is recent enough
@@ -57,6 +58,8 @@ npm install -g @internet2000/backup-bot
 Create a `config.yaml` file in the root directory with the following structure:
 
 ```yaml
+strategy:
+  type: gfs # This will duplicate the backups for weekly, monthly, and yearly backups
 servers:
   - host: server1.example.com
     user: username
