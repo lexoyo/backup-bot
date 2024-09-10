@@ -32,6 +32,7 @@ async function runBackup() {
       const intro = `Backing up ${server.host}`
       addToReport(`\n\n${intro}\n${'-'.repeat(intro.length)}`)
       const sshClient = await createSSHClient(server)
+      let logs = ''
       try {
         let start = Date.now()
         if (server.backupCommand) {
@@ -49,7 +50,7 @@ async function runBackup() {
           })
         }
         console.info(`> Backing up ${server.folders.length} folders on ${server.host}`)
-        const logs = await createBackup(sshClient, server.folders, config, server.remotePath)
+        logs = await createBackup(sshClient, server.folders, config, server.remotePath)
         addToReport(`Successfully backed up ${server.folders.length} folders on ${server.host}\nCompleted in ${(Date.now() - start) / 1000}s`)
         start = Date.now()
         addToReport(`Downloading files from s3://${config.s3.bucket}/${server.remotePath}`)
@@ -62,40 +63,45 @@ async function runBackup() {
         } else {
           addToReport('Dry run enabled, skipping download')
         }
-        if(config.strategy?.type === 'gfs') {
+      } catch (error) {
+        addToReport(`Error backing up ${server.host}: ${error.message || error || logs}`, 'error')
+        console.error({error, logs})
+        errorOccured = true
+      }
+      if (config.strategy?.type === 'gfs') {
+        try {
           addToReport(`GFS strategy is used.`)
           const today = new Date(config.forceCurrentDate || Date.now())
           addToReport(`Today is ${today.toISOString()}`)
           // Yearly
-          if(today.getMonth() === 0 && today.getDate() === 1) {
+          if (today.getMonth() === 0 && today.getDate() === 1) {
             addToReport(`It's the first day of the year. Duplicate the backup for safekeeping.`)
             start = Date.now()
             await duplicateBackup(config, server.remotePath, 'yearly')
             addToReport(`Yearly backup completed in ${(Date.now() - start) / 1000}s`)
           }
           // Monthly
-          if(today.getDate() === 1) {
+          if (today.getDate() === 1) {
             addToReport(`It's the first day of the month. Duplicate the backup for safekeeping.`)
             start = Date.now()
             await duplicateBackup(config, server.remotePath, 'monthly')
             addToReport(`Monthly backup completed in ${(Date.now() - start) / 1000}s`)
           }
           // Weekly
-          if(today.getDay() === 0) {
+          if (today.getDay() === 0) {
             addToReport(`It's Sunday. Duplicate the backup for safekeeping.`)
             start = Date.now()
             await duplicateBackup(config, server.remotePath, 'weekly')
             addToReport(`Weekly backup completed in ${(Date.now() - start) / 1000}s`)
           }
+        } catch (error) {
+          addToReport(`Error duplicating backup for ${server.host} with strategy ${config.strategy?.type}: ${error.message || error}`, 'error')
+          errorOccured = true
         }
-      } catch (error) {
-        addToReport(`Error backing up ${server.host}: ${error.message}`)
-        console.error(`Error backing up ${server.host}: ${error.message}\n`, error)
-        errorOccured = true
       }
     } catch (err) {
-      console.error(`Error for ${server.host}: ${err.message}`, err)
-      addToReport(`Connection error for ${server.host}: ${err.message}`)
+      addToReport(`Connection error for ${server.host}: ${err.message || error}`, 'error')
+      console.error(err)
       errorOccured = true
     }
     addToReport(`Done with ${server.host}`)
