@@ -55,10 +55,24 @@ async function runBackup() {
         start = Date.now()
         addToReport(`Downloading files from s3://${config.s3.bucket}/${server.remotePath}`)
         if (!config.dryRun) {
-          const contents = await getArchiveContent(config, server.remotePath)
-          addToReport(`Successfully downloaded ${contents.length} files from s3://${config.s3.bucket}/${server.remotePath}\nCompleted in ${(Date.now() - start) / 1000}s`)
-          if (config.includeFileTree) {
-            addToReport(`Files tree in the archive:\n${contents.map((f) => f.label).join('\n')}`)
+          let retried = 0
+          let errorOccured
+          do {
+            try {
+              errorOccured = null
+              const contents = await getArchiveContent(config, server.remotePath)
+              addToReport(`Successfully downloaded ${contents.length} files from s3://${config.s3.bucket}/${server.remotePath}\nCompleted in ${(Date.now() - start) / 1000}s`)
+              if (config.includeFileTree) {
+                addToReport(`Files tree in the archive:\n${contents.map((f) => f.label).join('\n')}`)
+              }
+            } catch(retryError) {
+              addToReport(`Error downloading files from s3://${config.s3.bucket}/${server.remotePath}: ${retryError.message || retryError}`, 'warn')
+              errorOccured = retryError
+            }
+          } while (errorOccured && ++retried < 3)
+          if (errorOccured) {
+            addToReport(`Failed to download files from s3://${config.s3.bucket}/${server.remotePath} after 3 retries`, 'error')
+            throw errorOccured
           }
         } else {
           addToReport('Dry run enabled, skipping download')
