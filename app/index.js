@@ -4,7 +4,7 @@ import { createSSHClient, createBackup } from './ssh.js'
 import { createTransporter, sendEmail } from './email.js'
 import { getArchiveContent, duplicateBackup } from './s3.js'
 
-DOWNLOAD_MAX_RETRY = 3
+const DOWNLOAD_MAX_RETRY = 3
 
 let report = ''
 function addToReport(message, type = 'log') {
@@ -30,12 +30,13 @@ async function runBackup() {
 
   console.info(`> Starting backup process of ${config.servers.length} servers`)
   for (const server of config.servers) {
+    let sshClient
+    let logs = ''
     // Conncetion to S3
     try {
       const intro = `Backing up ${server.host}`
       addToReport(`\n\n${intro}\n${'-'.repeat(intro.length)}`)
-      const sshClient = await createSSHClient(server)
-      let logs = ''
+      sshClient = await createSSHClient(server)
     } catch (err) {
       addToReport(`Connection error for ${server.host}: ${err.message || error}`, 'error')
       console.error(err)
