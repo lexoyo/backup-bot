@@ -38,12 +38,9 @@ async function runBackup() {
       addToReport(`\n\n${intro}\n${'-'.repeat(intro.length)}`)
       sshClient = await createSSHClient(server)
     } catch (err) {
-      addToReport(`Connection error for ${server.host}: ${err.message || error}`, 'error')
+      addToReport(`\u26D4 Connection error for ${server.host}: ${err.message || error}`, 'error')
       console.error(err)
       errorOccured = true
-    }
-    if(errorOccured) {
-      addToReport(`\u26D4 Backup failed for ${server.host}`, 'error')
       continue
     }
 
@@ -93,11 +90,8 @@ async function runBackup() {
         addToReport('Dry run enabled, skipping download')
       }
     } catch (error) {
-      addToReport(`Error backing up ${server.host}: ${error.message || error || logs}`, 'error')
+      addToReport(`\u26D4 Error backing up ${server.host}: ${error.message || error || logs}`, 'error')
       errorOccured = true
-    }
-    if(errorOccured) {
-      addToReport(`\u26D4 Backup failed for ${server.host}`, 'error')
       continue
     }
     // Duplicate the backups to implement GFS (Grandfather/father/son) strategy
@@ -128,11 +122,8 @@ async function runBackup() {
           addToReport(`Weekly backup completed in ${(Date.now() - start) / 1000}s`)
         }
       } catch (error) {
-        addToReport(`Error duplicating backup for ${server.host} with strategy ${config.strategy?.type}: ${error.message || error}`, 'error')
+        addToReport(`\u26D4 Error duplicating backup for ${server.host} with strategy ${config.strategy?.type}: ${error.message || error}`, 'error')
         errorOccured = true
-      }
-      if(errorOccured) {
-        addToReport(`\u26D4 Backup failed for ${server.host}`, 'error')
         continue
       }
     }
