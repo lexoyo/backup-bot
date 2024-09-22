@@ -48,8 +48,8 @@ async function runBackup() {
     }
 
     // Create backup and upload to S3
+    let start = Date.now()
     try {
-      let start = Date.now()
       if (server.backupCommand) {
         console.info(`> Running custom backup command on ${server.host}: ${server.backupCommand}`)
         await new Promise((resolve, reject) => {
