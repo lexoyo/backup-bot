@@ -53,7 +53,7 @@ export function createSSHClient({host, user}) {
           readdir: (path) => new Promise((cbk, rejectCbk) => {
             console.info(`>> readdir ${path} on ${host}`)
             // List files in a directory
-            exec(`ssh -o "StrictHostKeyChecking no" ${user}@${host} ls ${path}`, (err, stdout, stderr) => {
+            exec(`ssh -o "StrictHostKeyChecking no" ${user}@${host} ls -a ${path}`, (err, stdout, stderr) => {
               console.info(`>> readdir done (${stderr})`, stdout.split('\n').filter(Boolean).length)
               if (err) return rejectCbk(stderr)
               cbk(stdout.split('\n').filter(Boolean))
@@ -72,7 +72,6 @@ export function createSSHClient({host, user}) {
 async function resolvePaths(client, folders) {
   console.info('>> Resolving paths', folders)
   const resolved = await Promise.all(folders.map(async (path) => {
-    const hasTrailingSlash = path.endsWith('/')
     path = path.replace(/\/$/, '')
     const fileName = path.split('/').pop()
     const baseName = [...path.split('/').slice(0, -1)].join('/')
