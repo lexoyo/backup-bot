@@ -51,15 +51,23 @@ async function runBackup() {
         console.info(`> Running custom backup command on ${server.host}: ${server.backupCommand}`)
         await new Promise((resolve, reject) => {
           sshClient.exec(server.backupCommand, (err, stdout, stderr) => {
+            addToReport(`Running custom backup command on ${server.host}: ${stdout.split('\n').join('\n>> ')}`)
+            if (stderr && !err) {
+              // It's a warning
+              addToReport(`\u26A0 Warning running custom backup command on ${server.host}: ${stderr}`, 'warn')
+            }
             if (err) {
-              addToReport(`Error running custom backup command on ${server.host}: ${stderr}`, 'error')
+              addToReport(`\u26D4 Error running custom backup command on ${server.host}: ${stderr}`, 'error')
               reject(err)
             } else {
-              console.info(`> Custom backup command ran on ${server.host}`)
               resolve()
             }
           })
         })
+      }
+      if(!server.folders?.length) {
+        addToReport(`No folders to backup on ${server.host}`, 'warn')
+        continue
       }
       console.info(`> Backing up ${server.folders.length} folders on ${server.host}`)
       logs = await createBackup(sshClient, server.folders, config, server.remotePath)

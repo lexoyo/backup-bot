@@ -11,9 +11,10 @@ Backup Bot is an open-source software designed to automate daily backups of spec
 - [x] Execute a command before backing up a server
 - [x] Support folders with blob in their names, e.g. /path/to/folder/my_*_data
 - [x] Support GFS (Grandfather-Father-Son) backup rotation
+- [x] Check server disk space or other metrics
+- [ ] Check the backup integrity
 - [ ] npm package @internet2000/backup-bot
 - [ ] Docker image internet2000/backup-bot
-- [ ] In config add a list of files with a "delay", check that the file is in the archive and it is recent enough
 
 ## Prerequisites
 
@@ -118,6 +119,19 @@ Used by the Docker image:
 - `CONFIG_YAML`: Content of the `config.yaml` file, see the [Config file](#config-file) section
 - `SSH_PRIVATE_KEY`: SSH private key
 - `CRONJOB`: Cron job schedule, e.g `0 1 * * * /app/run.sh`
+
+### Check server disk space or other metrics
+
+You can check the server disk space or other metrics by adding the following configuration:
+
+```yaml
+servers:
+  - host: server1.example.com
+    user: username
+    backupCommand: "df -h / | awk 'NR==2{if($5+0 > 75) exit 1}' || (>&2 echo \"Error: Hard drive is more than 3/4 full\" && exit 1)"
+```
+
+This will not backup anything since the `folder` key is empty. The `backupCommand` will run before the backup process. If the command returns a non-zero exit code, the report will include the error message.
 
 ## Usage
 
