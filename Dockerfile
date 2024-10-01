@@ -31,7 +31,7 @@ ENV CRONJOB $CRONJOB
 COPY cronjob /etc/cron.d/backup-cron-job
 
 # Startup script
-ENTRYPOINT [ "/app/startup.sh" ]
+ENTRYPOINT [ "/app/scripts/startup.sh" ]
 
 # Run the command on container startup
 CMD cron && tail -f /var/log/cron.log
