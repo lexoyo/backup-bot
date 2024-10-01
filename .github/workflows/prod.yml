@@ -33,8 +33,7 @@ jobs:
           cwd: "./"
           files: |
             app/
-            startup.sh
-            run.sh
+            scripts/
             cronjob
             captain-definition
             package.json

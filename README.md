@@ -118,7 +118,7 @@ Used by the Docker image:
 
 - `CONFIG_YAML`: Content of the `config.yaml` file, see the [Config file](#config-file) section
 - `SSH_PRIVATE_KEY`: SSH private key
-- `CRONJOB`: Cron job schedule, e.g `0 1 * * * /app/run.sh`
+- `CRONJOB`: Cron job schedule, e.g `0 1 * * * /app/scripts/run.sh`
 
 ### Check server disk space or other metrics
 

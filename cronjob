@@ -1,2 +1,2 @@
-0 0 * * * /app/run.sh
+0 0 * * * /app/scripts/run.sh
 
