@@ -66,11 +66,11 @@ async function runBackup() {
         })
       }
       if(!server.folders?.length) {
-        addToReport(`No folders to backup on ${server.host}`, 'warn')
+        addToReport(`No folders to backup on ${server.host}`, 'log')
         continue
       }
       console.info(`> Backing up ${server.folders.length} folders on ${server.host}`)
-      logs = await createBackup(sshClient, server.folders, config, server.remotePath)
+      logs = await createBackup(sshClient, server.folders, config, server.remotePath, server.tmpFolder || '/tmp')
       addToReport(`Successfully backed up ${server.folders.length} folders on ${server.host}\nCompleted in ${(Date.now() - start) / 1000}s`)
       start = Date.now()
       addToReport(`Downloading files from s3://${config.s3.bucket}/${server.remotePath}`)
