@@ -70,7 +70,7 @@ async function runBackup() {
         continue
       }
       console.info(`> Backing up ${server.folders.length} folders on ${server.host}`)
-      logs = await createBackup(sshClient, server.folders, config, server.remotePath, server.tmpFolder || '/tmp')
+      logs = await createBackup(sshClient, server.folders, config, server.remotePath, server.tmpFolder || '/tmp', typeof server.archive)
       addToReport(`Successfully backed up ${server.folders.length} folders on ${server.host}\nCompleted in ${(Date.now() - start) / 1000}s`)
       start = Date.now()
       addToReport(`Downloading files from s3://${config.s3.bucket}/${server.remotePath}`)
@@ -80,7 +80,7 @@ async function runBackup() {
         do {
           try {
             downloadError = null
-            const contents = await getArchiveContent(config, server.remotePath)
+            const contents = await getArchiveContent(config, server.remotePath, server.archive)
             addToReport(`Successfully downloaded ${contents.length} files from s3://${config.s3.bucket}/${server.remotePath}\nCompleted in ${(Date.now() - start) / 1000}s`)
             if (config.includeFileTree) {
               addToReport(`Files tree in the archive:\n${contents.map((f) => f.label).join('\n')}`)

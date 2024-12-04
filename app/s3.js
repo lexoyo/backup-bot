@@ -20,29 +20,43 @@ const pipelineAsync = promisify(pipeline)
  * // `
  *
  */
-export function getBashCommand(config, tmpPath, remotePath, folders) {
-  const bashScript = `
-      export AWS_ACCESS_KEY_ID=${config.s3.accessKeyId}
-      export AWS_SECRET_ACCESS_KEY=${config.s3.secretAccessKey}
-      export AWS_DEFAULT_REGION=${config.s3.region}
-      export S3_ENDPOINT=${config.s3.endpoint}
+export function getBashCommand(config, tmpPath, remotePath, folders, archive) {
+  const pathToUpload = archive ? tmpPath : folders[0];
 
+  const bashScript = `
+    export AWS_ACCESS_KEY_ID=${config.s3.accessKeyId}
+    export AWS_SECRET_ACCESS_KEY=${config.s3.secretAccessKey}
+    export AWS_DEFAULT_REGION=${config.s3.region}
+    export S3_ENDPOINT=${config.s3.endpoint}
+
+    # Create tarball if archiving is enabled
+    ${archive ? getBashTarCommand(tmpPath, folders) : ''}
+
+    # Check the size of the file or folder to upload
+    echo "Backup size:"
+    du -sh "${pathToUpload}"
+
+    # Upload file or folder to S3
+    echo "Uploading to s3://${config.s3.bucket}/${remotePath}"
+    if ! aws s3 cp "${pathToUpload}" "s3://${config.s3.bucket}/${remotePath}" \
+      --storage-class STANDARD; then
+      echo "Upload failed" >&2
+      ${archive ? `rm -v "${tmpPath}"` : ''}
+      exit 1
+    fi
+
+    # Cleanup if archiving
+    ${archive ? `rm -v "${tmpPath}"` : ''}
+  `;
+
+  return bashScript;
+}
+
+function getBashTarCommand(tmpPath, folders) {
+  const bashScript = `
       # Create tarball
       echo "Creating tarball of ${folders.length} folders"
       tar --exclude='node_modules' --exclude='.git' --exclude='.cache' -czf ${tmpPath} ${folders.join(' ')}
-
-      # Upload file to S3
-      echo "Uploading to s3://${config.s3.bucket}/${remotePath}"
-      if ! aws s3api put-object \
-        --bucket ${config.s3.bucket} \
-        --key ${remotePath} \
-        --body ${tmpPath} \
-        --tagging "backup-type=daily"; then
-        echo "Upload failed" >&2
-        rm -v ${tmpPath}
-        exit 1
-      fi
-      rm -v ${tmpPath}
     `
 
   return bashScript
@@ -142,18 +156,27 @@ async function deleteFolderRecursive(path) {
   await fs.promises.rmdir(path)
 }
 
-export async function getArchiveContent(config, remotePath) {
-  const localPath = `/tmp/backup-${Date.now()}.tar.gz`
-  await downloadFile(config, remotePath, localPath)
-  console.info('>> Download complete.')
+export async function getArchiveContent(config, remotePath, archive) {
+  if(archive) {
+    const localPath = `/tmp/backup-${Date.now()}.tar.gz`
+    await downloadFile(config, remotePath, localPath)
+    console.info('>> Download complete.')
 
-  const firstLevelFiles = await listFilesTarGz(localPath)
-  console.info(`>> Found ${firstLevelFiles.length} files in the archive`)
+    const firstLevelFiles = await listFilesTarGz(localPath)
+    console.info(`>> Found ${firstLevelFiles.length} files in the archive`)
 
-  console.info('>> Deleting local tar.gz file...')
-  fs.promises.unlink(localPath)
+    console.info('>> Deleting local tar.gz file...')
+    fs.promises.unlink(localPath)
 
-  return firstLevelFiles
+    return firstLevelFiles
+  } else {
+    // download the file
+    const localPath = `/tmp/backup-${Date.now()}`
+    await downloadFile(config, remotePath, localPath)
+    console.info('>> Download complete.')
+    fs.promises.unlink(localPath)
+    return [remotePath.split('/').pop()]
+  }
 }
 
 export async function duplicateBackup(config, remotePath, type) {

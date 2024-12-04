@@ -7,6 +7,12 @@ const config = yaml.load(fs.readFileSync('config.yaml', 'utf8'))
 export default {
   // Config from the YAML file
   ...config,
+  // Defaults
+  servers: config.servers
+    .map((server) => ({
+      ...server,
+      archive: typeof server.archive === 'undefined' ? true : server.archive,
+    })),
   // Config from environment variables
   dryRun: !!process.env.DRY_RUN,
   s3: {

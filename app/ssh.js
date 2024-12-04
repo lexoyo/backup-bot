@@ -82,13 +82,13 @@ async function resolvePaths(client, folders) {
   return resolved.flat()
 }
 
-export function createBackup(client, folders, config, remotePath, tmpPathRoot = '/tmp') {
+export function createBackup(client, folders, config, remotePath, tmpPathRoot = '/tmp', archive) {
   return new Promise((resolve, reject) => {
     return resolvePaths(client, folders)
     .then((resolved) => {
       const tmpPath = `${tmpPathRoot}/${remotePath.split('/').join('_')}`
 
-      const command = `bash -c '${getBashCommand(config, tmpPath, remotePath, resolved)}'`
+      const command = `bash -c '${getBashCommand(config, tmpPath, remotePath, resolved, archive)}'`
       client.exec(command, (err, stdout, stderr) => {
         if (err) return reject(stderr)
         console.info(`>> Backup of ${resolved.length} folders uploaded to ${remotePath}`)
