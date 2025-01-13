@@ -2,7 +2,7 @@ import 'dotenv/config'
 import config from './config.js'
 import { createSSHClient, createBackup } from './ssh.js'
 import { createTransporter, sendEmail } from './email.js'
-import { getArchiveContent, duplicateBackup } from './s3.js'
+import { getArchiveContent, duplicateBackup, setTags } from './s3.js'
 
 const DOWNLOAD_MAX_RETRY = 3
 
@@ -108,6 +108,10 @@ async function runBackup() {
         addToReport(`GFS strategy is used.`)
         const today = new Date(config.forceCurrentDate || Date.now())
         addToReport(`Today is ${today.toISOString()}`)
+        // Add "daily" tag to the backup made earlier
+        start = Date.now()
+        await setTags(config, server.remotePath, ['daily'])
+        addToReport(`Daily backup completed in ${(Date.now() - start) / 1000}s`)
         // Yearly
         if (today.getMonth() === 0 && today.getDate() === 1) {
           addToReport(`It's the first day of the year. Duplicate the backup for safekeeping.`)

@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand, CopyObjectCommand, TaggingDirective } from '@aws-sdk/client-s3'
+import { S3Client, GetObjectCommand, CopyObjectCommand } from '@aws-sdk/client-s3'
 import fs from 'fs'
 import { pipeline } from 'stream'
 import { promisify } from 'util'
@@ -201,6 +201,27 @@ export async function duplicateBackup(config, remotePath, type) {
     CopySource: `${config.s3.bucket}/${remotePath}`,
     Key,
     Tagging: `backup-type=${type}`,
+    TaggingDirective: 'REPLACE',
+  }
+
+  const command = new CopyObjectCommand(params)
+  await s3Client.send(command)
+}
+
+export async function setTags(config, remotePath, tags) {
+  console.info(`>> Adding tags to ${remotePath}`)
+  const s3Client = new S3Client({
+    region: config.s3.region,
+    credentials: {
+      accessKeyId: config.s3.accessKeyId,
+      secretAccessKey: config.s3.secretAccessKey,
+    },
+  })
+
+  const params = {
+    Bucket: config.s3.bucket,
+    Key: remotePath,
+    Tagging: `backup-type=${tags.join(',')}`,
     TaggingDirective: 'REPLACE',
   }
 
